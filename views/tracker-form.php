@@ -10,19 +10,25 @@ $db_ops->create_tables();
 
 // Get array of projects from db_ops
 $projects = $db_ops->fetch_projects();
+
 // Get projects options list
 $proj_options = '';
 foreach ( $projects as $project ) {
 	$proj_options .= N . str_repeat(T, 3) . '<option value="' . $project->project_id . '">' . $project->project_name . '</option>';
 }
 
+// Unset the db_ops object when done with it
+unset($db_ops);
+
+// Get the dirname in a form that can be passed into JS
+$dirname = str_replace('\\', '\\\\', dirname(__DIR__));
+
 ?>
 <!-- Progress tracker form starts -->
 <script>
 <?php
 
-// Script needs to be inline here because browsers won't let you load scripts locally
-include( dirname(__DIR__) . '\js\tracker-form.js' );
+include dirname(__DIR__) . '\js\tracker-form.js';
 echo N;
 
 ?>
@@ -33,7 +39,7 @@ echo N;
 <?php
 if ( count($projects) > 0 ) {
 ?>
-		<select id="project-dropdown" class="form-select"><?php echo $proj_options; ?></select>
+		<select id="project-dropdown" class="form-select" onchange="lookupTime(this.value, '<?php echo $dirname; ?>')"><?php echo $proj_options; ?></select>
 <?php
 } else {
 ?>
@@ -42,9 +48,10 @@ if ( count($projects) > 0 ) {
 <?php
 }
 ?>
+	<div id="project-time-control" class="mb-3 d-none"></div>
 	</div>
 </form>
 <pre>
-<?php // echo var_dump($projects); ?>
+<?php  ?>
 </pre>
 <!-- Progress tracker form ends -->
